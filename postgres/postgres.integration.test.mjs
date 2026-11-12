@@ -1,6 +1,7 @@
 import {test, before, after} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
+import {once} from 'node:events';
 import {setTimeout as pause} from 'node:timers/promises';
 import {randomUUID} from 'node:crypto';
 const base='http://127.0.0.1:3099';
@@ -67,4 +68,24 @@ test('Foreign-user account access is denied',async()=>{
  const id=(await call('/api/snapshot',{cookie:ca})).body.accounts[0].id;
  assert.equal((await call('/api/accounts/'+id,{method:'PUT',cookie:cb,body:{name:'Hacked',balance_cents:5,protected_cents:0}})).status,404);
  assert.equal((await call('/api/snapshot',{cookie:ca})).body.accounts[0].balance_cents,1000);
+});
+test('PostgreSQL records survive a full web-server restart', async()=>{
+ const email='durable-'+randomUUID()+'@example.invalid',password='SafeLongPassword_456';
+ const r=await call('/api/register',{method:'POST',body:{email,password}});
+ assert.equal(r.status,201);
+ const cookie=r.cookie;
+ assert.equal((await call('/api/items',{method:'POST',cookie,body:{name:'Recurrent energy',kind:'bill',amount_cents:1199,due_date:'2026-12-10',frequency:'monthly',certainty:'confirmed'}})).status,201);
+ proc.kill('SIGTERM');
+ await once(proc,'exit');
+ proc=spawn(process.execPath,['src/server-pg.js'],{env:{...process.env,PORT:'3099',COOKIE_SECURE:'0'},stdio:['ignore','pipe','pipe']});
+ proc.stdout.on('data',x=>process.stdout.write(x));proc.stderr.on('data',x=>process.stderr.write(x));
+ let ready=false;
+ for(let i=0;i<60;i++){try{const h=await call('/health');if(h.status===200){ready=true;break}}catch{}await pause(200)}
+ assert.ok(ready,'server must restart with the original PostgreSQL data');
+ const logged=await call('/api/login',{method:'POST',body:{email,password}});
+ assert.equal(logged.status,200);
+ const snap=await call('/api/snapshot',{cookie:logged.cookie});
+ assert.equal(snap.body.items.length,1);
+ assert.equal(snap.body.items[0].name,'Recurrent energy');
+ assert.equal(snap.body.items[0].amount_cents,1199);
 });
