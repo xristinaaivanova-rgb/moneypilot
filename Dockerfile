@@ -9,6 +9,9 @@ RUN unzip -q /tmp/moneypilot.zip -d /tmp/extracted \
     && chown -R node:node /app /tmp/moneypilot \
     && rm -rf /tmp/extracted /tmp/moneypilot.zip
 RUN node -e 'const fs=require("fs");const p="public/index.html";let h=fs.readFileSync(p,"utf8");const a=h.indexOf("<section class=\"section lighter\" id=\"app\" hidden>");const b=h.indexOf("</section></main>",a);if(a<0||b<0)throw Error("Dashboard section not found");const block=h.slice(a,b+10);h=h.slice(0,a)+h.slice(b+10);const anchor="<section class=\"section lighter\" id=\"features\">";if(!h.includes(anchor))throw Error("Features section not found");h=h.replace(anchor,block+"\\n"+anchor);fs.writeFileSync(p,h);'
+COPY demo.html /app/public/demo.html
+COPY demo-link.js /app/public/demo-link.js
+RUN sed -i 's@</body>@<script src="/demo-link.js" defer></script></body>@' /app/public/index.html
 USER node
 EXPOSE 3080
 CMD ["node", "src/server.js"]
