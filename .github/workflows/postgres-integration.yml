@@ -1,0 +1,48 @@
+name: PostgreSQL integration verification
+on:
+  push:
+    branches:
+      - feature/postgres-persistence-v1
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  postgres-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: moneypilot_ci
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: local_ci_only_password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ci_user -d moneypilot_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ci_user:local_ci_only_password@127.0.0.1:5432/moneypilot_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare MoneyPilot baseline from saved source archive
+        run: |
+          unzip -q MoneyPilot-deploy-ready-preview.zip -d /tmp/moneypilot-source
+          mkdir -p app
+          cp -R /tmp/moneypilot-source/moneypilot/. app/
+          cp -R postgres app/postgres
+          cd app
+          npm install pg@8.16.3 --save-exact --omit=dev --no-audit --no-fund
+          MONEYPILOT_ROOT="$PWD" node postgres/build-pg.mjs
+          node --check src/server-pg.js
+          node --check postgres/db.js
+      - name: Existing financial engine regression tests
+        run: cd app && node --test tests/engine.test.js
+      - name: PostgreSQL account, session and data persistence tests
+        run: cd app && node --test postgres/postgres.integration.test.mjs
