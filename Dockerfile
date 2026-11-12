@@ -18,7 +18,12 @@ RUN sed -i 's@</head>@<link rel="stylesheet" href="/workspace.css"></head>@' /ap
 COPY whatif.js /app/public/whatif.js
 COPY whatif.css /app/public/whatif.css
 RUN sed -i 's@</head>@<link rel="stylesheet" href="/whatif.css"></head>@' /app/public/index.html && sed -i 's@</body>@<script src="/whatif.js" defer></script></body>@' /app/public/index.html
-RUN node --check /app/public/workspace.js && node --check /app/public/whatif.js && node --test /app/tests/engine.test.js
+COPY ux-enhancements.js /app/public/ux-enhancements.js
+COPY ux-enhancements.css /app/public/ux-enhancements.css
+COPY build-fixes.mjs /app/build-fixes.mjs
+RUN node /app/build-fixes.mjs
+RUN sed -i 's@</head>@<link rel="stylesheet" href="/ux-enhancements.css"></head>@' /app/public/index.html && sed -i 's@</body>@<script src="/ux-enhancements.js" defer></script></body>@' /app/public/index.html
+RUN node --check /app/public/app.js && node --check /app/public/workspace.js && node --check /app/public/whatif.js && node --check /app/public/ux-enhancements.js && node --test /app/tests/engine.test.js
 USER node
 EXPOSE 3080
 CMD ["node", "src/server.js"]
