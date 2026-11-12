@@ -1,0 +1,26 @@
+/* Additive 2026 MoneyPilot UX improvements. No existing selectors are removed. */
+#mpDayTools{margin-top:12px;padding:15px 18px;background:#f1f6ef;border:1px solid #c8d8ca;border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mpDayToolsCopy{display:flex;flex-direction:column;gap:3px}.mpDayToolsCopy strong{color:#173b2d;font-size:16px}.mpDayToolsCopy span{font-size:13px;color:#68766c}.mpDayToolsButtons{display:flex;flex-wrap:wrap;gap:10px}.mpDayToolsButtons button{border-radius:10px;border:1px solid #214d3b;background:#214d3b;color:white;padding:10px 16px;cursor:pointer;font-weight:700}.mpDayToolsButtons button:last-child{background:white;color:#214d3b}
+#mpGrid button:focus-visible,.mpDayToolsButtons button:focus-visible,.mpQuickLinks button:focus-visible{outline:3px solid #71917b;outline-offset:2px}
+#mpReturn{border:1px solid #214d3b;border-radius:10px;background:#e8f1e9;color:#214d3b;cursor:pointer;font-weight:700;padding:10px 12px}
+#mpReturn[hidden],#openLogin[hidden],#openRegister[hidden]{display:none!important}
+.mpPrivate #mpReturn{display:none!important}
+.mpMarketing #mpReturn:not([hidden]){display:inline-flex!important}
+.mpInsights{margin:18px 0 26px;background:white;border:1px solid #e6ebe2;border-radius:18px;padding:22px;box-shadow:0 5px 24px #173b2d08}
+.mpInsightsHead{display:flex;gap:12px;justify-content:space-between;align-items:center}
+.mpInsightsHead small{color:#71917b;letter-spacing:.11em;font-weight:800}
+.mpInsightsHead h3{margin:5px 0;font-size:22px;color:#173b2d}
+.mpInsightsHead p{margin:0;color:#68766c;font-size:13px}
+#mpUpdateInsights{cursor:pointer;border:1px solid #c7d5c9;background:#f8f5ed;color:#214d3b;padding:8px 13px;border-radius:9px}
+.mpInsightsGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:19px}
+.mpInsightsGrid article{background:#f8f5ed;border:1px solid #e7e9df;border-radius:13px;padding:17px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.mpInsightsGrid small{font-size:12px;color:#68766c}.mpInsightsGrid strong{font-size:clamp(18px,2.4vw,26px);color:#214d3b;font-variant-numeric:tabular-nums}.mpInsightsGrid span{font-size:12px;color:#68766c}
+.mpQuickLinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.mpQuickLinks button{background:#e8f1e9;border:1px solid #c8d8ca;border-radius:10px;padding:10px 13px;color:#214d3b;cursor:pointer;font-weight:650}
+#mpPaydayDetails{margin-top:24px;border-top:1px solid #e4e9e1;padding-top:20px}#mpPaydayDetails h3{color:#214d3b;margin:0 0 5px}#mpPaydayDetails p{color:#68766c;font-size:13px}
+.mpAllocationRows{max-width:680px;border:1px solid #e3e8e1;border-radius:12px;overflow:hidden;margin:14px 0}
+.mpAllocationRows>div{display:flex;gap:16px;justify-content:space-between;padding:13px 16px;border-bottom:1px solid #e8ece8}.mpAllocationRows>div:last-child{border:0}.mpAllocationRows strong{font-variant-numeric:tabular-nums}.mpAllocationRows .mpRemaining{background:#eff6ed;color:#173b2d;font-weight:700}
+.mpCaveat{font-size:13px;max-width:750px}.mpEmpty{background:#f8f5ed;padding:18px;border-radius:12px}.mpEmpty button{cursor:pointer;background:#214d3b;color:white;border:0;border-radius:9px;padding:9px 12px}
+.mpCalendarView .mpInsights,.mpPurchaseView .mpInsights,.mpAllocationView .mpInsights,.mpWhatifView .mpInsights{display:none!important}
+.mpMarketing .mpInsights{display:none!important}
+@media(max-width:800px){.mpInsightsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.mpInsights{padding:14px}.mpInsightsHead{align-items:flex-start;flex-direction:column}.mpInsightsGrid{gap:8px}.mpInsightsGrid article{padding:12px}.mpInsightsGrid strong{font-size:17px}#mpDayTools{padding:12px}#mpDayTools button{padding:9px 11px}#mpReturn{font-size:12px}}
