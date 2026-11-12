@@ -39,11 +39,17 @@ export const db={
 export async function initPostgres(){
   const c=await pool.connect();
   try{
-    const migration=fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)),'001_initial.sql'),'utf8');
-    await c.query(migration);
-    const result=await c.query('SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1');
-    if(result.rows[0]?.version!==1)throw Error('Unexpected schema migration state');
-    console.log('MoneyPilot PostgreSQL schema v1 ready');
+    await c.query('SELECT pg_advisory_lock(73122, 1)');
+    try{
+      const migration=fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)),'001_initial.sql'),'utf8');
+      await c.query(migration);
+      const result=await c.query('SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1');
+      if(result.rows[0]?.version!==1)throw Error('Unexpected schema migration state');
+      console.log('MoneyPilot PostgreSQL schema v1 ready');
+    }catch(err){
+      await c.query('ROLLBACK').catch(()=>{});
+      throw err;
+    }finally{await c.query('SELECT pg_advisory_unlock(73122, 1)');}
   }finally{c.release();}
 }
 export async function healthPostgres(){const r=await pool.query('SELECT 1 AS ok');return r.rows[0]?.ok===1;}
