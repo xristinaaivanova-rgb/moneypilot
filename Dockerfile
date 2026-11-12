@@ -12,6 +12,9 @@ RUN node -e 'const fs=require("fs");const p="public/index.html";let h=fs.readFil
 COPY demo.html /app/public/demo.html
 COPY demo-link.js /app/public/demo-link.js
 RUN sed -i 's@</body>@<script src="/demo-link.js" defer></script></body>@' /app/public/index.html
+COPY workspace.js /app/public/workspace.js
+COPY workspace.css /app/public/workspace.css
+RUN sed -i 's@</head>@<link rel="stylesheet" href="/workspace.css"></head>@' /app/public/index.html && sed -i 's@</body>@<script type="module" src="/workspace.js"></script></body>@' /app/public/index.html
 USER node
 EXPOSE 3080
 CMD ["node", "src/server.js"]
