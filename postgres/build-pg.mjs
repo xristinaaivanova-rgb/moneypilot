@@ -1,0 +1,25 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root=process.env.MONEYPILOT_ROOT||'/app';
+const input=path.join(root,'src/server.js'),output=path.join(root,'src/server-pg.js');
+let s=fs.readFileSync(input,'utf8');
+function once(a,b){const n=s.split(a).length-1;if(n!==1)throw Error('Server compatibility mismatch: '+a.slice(0,50)+' (count '+n+')');s=s.replace(a,b);}
+const begin=s.indexOf("import {DatabaseSync}"),end=s.indexOf("const publicDir=",begin);
+if(begin<0||end<0)throw Error('Original SQLite initialization changed; abort PostgreSQL build');
+const engine=s.slice(s.indexOf("import {forecast",begin),s.indexOf("const root=",begin));
+const newHead="import {db,initPostgres,healthPostgres} from '../postgres/db.js';\n"+engine+"const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');\n";
+s=s.slice(0,begin)+newHead+s.slice(end);
+once('function createSession(res,userId)','async function createSession(res,userId)');
+once('function auth(req)','async function auth(req)');
+once('function snapshot(userId,horizon=30)','async function snapshot(userId,horizon=30)');
+s=s.replaceAll('db.prepare(','await db.prepare(');
+once('createSession(res,result.lastInsertRowid)','await createSession(res,result.lastInsertRowid)');
+once('createSession(res,user.id)','await createSession(res,user.id)');
+once('const u=auth(req)','const u=await auth(req)');
+once('return send(res,200,snapshot(u.id,','return send(res,200,await snapshot(u.id,');
+once('...snapshot(u.id)','...(await snapshot(u.id))');
+once("if(url.pathname==='/health' && req.method==='GET')return send(res,200,{ok:true,service:'moneypilot'});","if(url.pathname==='/health' && req.method==='GET')return send(res,200,{ok:await healthPostgres(),service:'moneypilot',database:'postgres'});");
+once('server.listen(port,()=>',"await initPostgres();\nserver.listen(port,()=>");
+if(s.includes('DatabaseSync')||s.includes('new DatabaseSync'))throw Error('SQLite references remained');
+fs.writeFileSync(output,s);
+console.log('Generated asynchronous PostgreSQL server from existing API routes.');
