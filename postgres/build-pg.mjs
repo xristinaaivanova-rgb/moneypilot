@@ -1,5 +1,7 @@
 import fs from 'node:fs';
-const input='/app/src/server.js',output='/app/src/server-pg.js';
+import path from 'node:path';
+const root=process.env.MONEYPILOT_ROOT||'/app';
+const input=path.join(root,'src/server.js'),output=path.join(root,'src/server-pg.js');
 let s=fs.readFileSync(input,'utf8');
 function once(a,b){const n=s.split(a).length-1;if(n!==1)throw Error('Server compatibility mismatch: '+a.slice(0,50)+' (count '+n+')');s=s.replace(a,b);}
 const begin=s.indexOf("import {DatabaseSync}"),end=s.indexOf("const publicDir=",begin);
