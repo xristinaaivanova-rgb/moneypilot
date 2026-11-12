@@ -15,7 +15,10 @@ RUN sed -i 's@</body>@<script src="/demo-link.js" defer></script></body>@' /app/
 COPY workspace.js /app/public/workspace.js
 COPY workspace.css /app/public/workspace.css
 RUN sed -i 's@</head>@<link rel="stylesheet" href="/workspace.css"></head>@' /app/public/index.html && sed -i 's@</body>@<script type="module" src="/workspace.js"></script></body>@' /app/public/index.html
-RUN node --check /app/public/workspace.js && node --test /app/tests/engine.test.js
+COPY whatif.js /app/public/whatif.js
+COPY whatif.css /app/public/whatif.css
+RUN sed -i 's@</head>@<link rel="stylesheet" href="/whatif.css"></head>@' /app/public/index.html && sed -i 's@</body>@<script src="/whatif.js" defer></script></body>@' /app/public/index.html
+RUN node --check /app/public/workspace.js && node --check /app/public/whatif.js && node --test /app/tests/engine.test.js
 USER node
 EXPOSE 3080
 CMD ["node", "src/server.js"]
