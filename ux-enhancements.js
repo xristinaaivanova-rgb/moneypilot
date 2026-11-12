@@ -1,5 +1,5 @@
 /* MoneyPilot UX improvements: safe enhancement layer; no writes without user action. */
-(() => {
+document.addEventListener('DOMContentLoaded', () => {
   'use strict';
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
